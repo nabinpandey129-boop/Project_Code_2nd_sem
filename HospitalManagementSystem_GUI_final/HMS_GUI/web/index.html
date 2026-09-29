@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hospital Management System</title>
+<style>
+/* ===== Theme ===== */
+:root {
+  --bg: #f3f6fa;
+  --card: #ffffff;
+  --text: #1c2b3a;
+  --muted: #6b7c8d;
+  --border: #e3e9f0;
+  --primary: #546866;
+  --primary-dark: #0d5f59;
+  --danger: #c0392b;
+  --warning: #b7791f;
+  --success: #1e8449;
+  --sidebar: #10262e;
+  --shadow: 0 1px 3px rgba(20, 40, 60, 0.1);
+}
+
+/* ===== Base ===== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+button, input, select, textarea {
+  font: inherit;
+}
+
+.hide {
+  display: none !important;
+}
+
+/* ===== Forms ===== */
+label {
+  display: block;
+  margin: 12px 0 5px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid #99d5cf;
+  border-color: var(--primary);
+}
+
+textarea {
+  min-height: 70px;
+  resize: vertical;
+}
+
+.two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.err {
+  min-height: 18px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--danger);
+}
+
+/* ===== Buttons ===== */
+.btn {
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:hover      { background: var(--primary-dark); }
+.btn.ghost      { background: #eef2f6; color: var(--text); }
+.btn.ghost:hover{ background: #e0e7ee; }
+.btn.red        { background: var(--danger); }
+.btn.warn       { background: var(--warning); }
+.btn.sm         { padding: 5px 10px; font-size: 12px; }
+.btn.full       { width: 100%; margin-top: 18px; padding: 11px; }
+
+/* ===== Login ===== */
+#login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f766e, #134e4a);
+}
+
+.lcard {
+  width: 360px;
+  padding: 36px 38px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+.lcard h1 { margin: 0 0 4px; font-size: 22px; }
+.lcard p  { margin: 0 0 22px; color: var(--muted); }
+.logo     { margin-bottom: 8px; font-size: 40px; }
+
+.hint {
+  margin-top: 16px;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--bg);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ===== Layout: sidebar + main ===== */
+#app {
+  display: flex;
+  min-height: 100vh;
+}
+
+aside {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  width: 236px;
+  height: 100vh;
+  background: var(--sidebar);
+  color: #cfe3e1;
+}
+
+.brand { padding: 20px 20px 14px; font-size: 17px; font-weight: 700; color: #fff; }
+.brand span { margin-right: 6px; font-size: 24px; }
+
+.user { margin: 0 14px 12px; padding: 12px; border-radius: 10px; background: #17353f; }
+.user b { display: block; color: #fff; }
+.user small { color: #8fb5b1; }
+
+nav {
+  flex: 1;
+  padding: 6px 10px;
+  overflow: auto;
+}
+
+nav button {
+  display: block;
+  width: 100%;
+  margin-bottom: 2px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: #cfe3e1;
+  text-align: left;
+  cursor: pointer;
+}
+
+nav button:hover { background: #17353f; }
+nav button.on    { background: var(--primary); color: #fff; font-weight: 600; }
+
+.lo {
+  margin: 12px;
+  padding: 10px;
+  border: 0;
+  border-radius: 8px;
+  background: #22434e;
+  color: #fff;
+  cursor: pointer;
+}
+
+main {
+  flex: 1;
+  min-width: 0;
+  padding: 26px 30px;
+}
+
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.top h2 { margin: 0; font-size: 22px; }
+
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.tools input, .tools select { width: 240px; }
+
+/* ===== Cards & stats ===== */
+.card {
+  margin-bottom: 18px;
+  padding: 18px;
+  border-radius: 12px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.stat {
+  padding: 18px;
+  border-left: 4px solid var(--primary);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.stat .n { font-size: 30px; font-weight: 700; }
+.stat .l { font-size: 13px; color: var(--muted); }
+
+.empty {
+  padding: 30px;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* ===== Tables ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+th {
+  padding: 11px 12px;
+  background: #eaf1f5;
+  text-align: left;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+td {
+  padding: 11px 12px;
+  border-top: 1px solid var(--border);
+}
+
+.act {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ===== Status tags ===== */
+.tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.Scheduled { background: #e0f0ff; color: #1a5f9e; }
+.Completed,
+.Paid      { background: #dff5e6; color: var(--success); }
+.Cancelled { background: #fde4e1; color: var(--danger); }
+.Unpaid    { background: #fff1d6; color: var(--warning); }
+
+/* ===== Modal & toast ===== */
+.ov {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(15, 30, 40, 0.55);
+}
+
+.md {
+  width: 520px;
+  max-width: 100%;
+  max-height: 92vh;
+  padding: 24px;
+  border-radius: 14px;
+  background: #fff;
+  overflow: auto;
+}
+
+.md h3  { margin: 0 0 6px; font-size: 18px; }
+.md .row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+
+#toast {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 99;
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: var(--sidebar);
+  color: #fff;
+}
+
+#toast.bad { background: var(--danger); }
+
+/* ===== Medical history timeline ===== */
+.tl {
+  margin-left: 8px;
+  padding-left: 20px;
+  border-left: 3px solid var(--primary);
+}
+
+.visit {
+  position: relative;
+  margin-bottom: 14px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.visit::before {
+  content: "";
+  position: absolute;
+  top: 20px;
+  left: -30px;
+  width: 12px;
+  height: 12px;
+  border: 3px solid var(--bg);
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.visit h4 {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+
+.chip {
+  display: inline-block;
+  margin: 2px 4px 2px 0;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #e6f4f2;
+  color: var(--primary-dark);
+  font-size: 12px;
+}
+
+.pinfo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 8px 18px;
+}
+
+.pinfo small {
+  display: block;
+  color: var(--muted);
+}
+
+/* ===== Visit form checkboxes ===== */
+.checks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.checks label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: none;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.checks input {
+  width: auto;
+}
+
+/* ===== Bill ===== */
+.bill {
+  padding: 16px;
+  border: 1px dashed #b8c6d1;
+  border-radius: 10px;
+  background: #fbfcfd;
+  font-family: Consolas, monospace;
+}
+
+.bill .r   { display: flex; justify-content: space-between; padding: 2px 0; }
+.bill .tot { font-size: 16px; font-weight: 700; }
+.bill hr   { margin: 8px 0; border: 0; border-top: 1px dashed #b8c6d1; }
+
+/* ===== Responsive & print ===== */
+@media (max-width: 800px) {
+  aside { width: 200px; }
+  main  { padding: 18px; }
+  .two  { grid-template-columns: 1fr; }
+}
+
+@media print {
+  aside, .top, .row, #toast { display: none !important; }
+  main { padding: 0; }
+  .ov  { position: static; background: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <form class="lcard" id="lf">
+    <div class="logo">🏥</div>
+    <h1>Hospital Management System</h1>
+    <p>Sign in to continue</p>
+    <label>Username</label><input id="lu" autocomplete="username" autofocus>
+    <label>Password</label><input id="lp" type="password" autocomplete="current-password">
+    <div class="err" id="le"></div>
+    <button class="btn full">Login</button>
+    <div class="hint"><b>Demo accounts</b><br>Admin: admin01 / admin123<br>Reception: recep01 / recep123<br>Doctor: dr.sharma / doc123</div>
+  </form>
+</div>
+
+<div id="app" class="hide">
+  <aside>
+    <div class="brand"><span>🏥</span>HMS</div>
+    <div class="user"><b id="uname"></b><small id="urole"></small></div>
+    <nav id="nav"></nav>
+    <button class="lo" onclick="logout()">⎋ Logout</button>
+  </aside>
+  <main>
+    <div class="top"><h2 id="ptitle"></h2><div class="tools" id="ptools"></div></div>
+    <div id="content"></div>
+  </main>
+</div>
+<div id="toast" class="hide"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rs = n => 'Rs. ' + Number(n).toLocaleString('en-IN');
+const ICON = {dashboard:'🏠',patients:'👤',doctors:'🧑‍⚕️',receptionists:'🧾',appointments:'📅',history:'🩺',visit:'➕',bills:'💰',reports:'📊'};
+let token = localStorage.getItem('hms_token'), me = null, page = 'dashboard', histPid = '';
+
+async function api(path, data) {
+  const o = {headers: {'X-Token': token || ''}};
+  if (data) { o.method = 'POST'; o.headers['Content-Type'] = 'application/x-www-form-urlencoded'; o.body = new URLSearchParams(data).toString(); }
+  const r = await fetch('/api/' + path, o);
+  const j = await r.json().catch(() => ({error: 'Server error'}));
+  if (r.status === 401 && path !== 'login') { localLogout(); throw new Error(j.error); }
+  if (!r.ok) throw new Error(j.error || 'Error');
+  return j;
+}
+function toast(m, bad) {
+  const t = $('#toast'); t.textContent = m; t.className = bad ? 'bad' : ''; clearTimeout(toast.h);
+  toast.h = setTimeout(() => t.className = 'hide', 3000);
+}
+function modal(title, body, onOk, okText = 'Save') {
+  const ov = document.createElement('div'); ov.className = 'ov';
+  ov.innerHTML = `<form class="md"><h3>${esc(title)}</h3>${body}<div class="err"></div><div class="row"><button type="button" class="btn ghost" data-x>${onOk ? 'Cancel' : 'Close'}</button>${onOk ? `<button class="btn">${okText}</button>` : ''}</div></form>`;
+  document.body.appendChild(ov);
+  const close = () => ov.remove();
+  ov.querySelector('[data-x]').onclick = close;
+  ov.onmousedown = e => { if (e.target === ov) close(); };
+  ov.querySelector('form').onsubmit = async e => {
+    e.preventDefault();
+    if (!onOk) return close();
+    try { await onOk(Object.fromEntries(new FormData(e.target))); close(); }
+    catch (er) { ov.querySelector('.err').textContent = er.message; }
+  };
+  return ov;
+}
+const can = (...roles) => roles.includes(me.role);
+
+/* ---------- login / shell ---------- */
+$('#lf').onsubmit = async e => {
+  e.preventDefault();
+  try {
+    const r = await api('login', {username: $('#lu').value, password: $('#lp').value});
+    token = r.token; localStorage.setItem('hms_token', token); me = r; start();
+  } catch (er) { $('#le').textContent = er.message; }
+};
+function localLogout() { token = null; me = null; localStorage.removeItem('hms_token'); $('#app').classList.add('hide'); $('#login').classList.remove('hide'); $('#lp').value = ''; $('#le').textContent = ''; }
+async function logout() { try { await api('logout', {}); } catch (e) {} localLogout(); }
+function start() {
+  $('#login').classList.add('hide'); $('#app').classList.remove('hide');
+  $('#uname').textContent = me.name; $('#urole').textContent = me.role;
+  $('#nav').innerHTML = me.pages.map(p => `<button data-p="${p.id}" onclick="go('${p.id}')">${ICON[p.id] || '•'}&nbsp; ${esc(p.label)}</button>`).join('');
+  go('dashboard');
+}
+function go(p, arg) {
+  page = p; if (p === 'history' && arg !== undefined) histPid = arg;
+  document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.p === p));
+  $('#ptools').innerHTML = '';
+  const label = me.pages.find(x => x.id === p)?.label || '';
+  $('#ptitle').textContent = label;
+  ({dashboard: pDashboard, patients: pPatients, appointments: pAppointments, history: pHistory, visit: pVisit,
+    bills: pBills, reports: pReports, doctors: () => pStaff('Doctor'), receptionists: () => pStaff('Receptionist')})[p]()
+    .catch(e => { $('#content').innerHTML = `<div class="card empty">${esc(e.message)}</div>`; });
+}
+
+/* ---------- dashboard ---------- */
+async function pDashboard() {
+  const s = await api('summary');
+  const st = (n, l) => `<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  let h = `<div class="card"><h3 style="margin:0">Welcome, ${esc(me.name)} 👋</h3><p style="color:var(--muted);margin:6px 0 0">Signed in as ${me.role}.</p></div><div class="cards">`;
+  h += st(s.patients, 'Patients') + st(s.scheduled, me.role === 'Doctor' ? 'My scheduled appointments' : 'Scheduled appointments') + st(s.today, 'Appointments today');
+  if (me.role !== 'Doctor') h += st(s.unpaid, 'Unpaid bills');
+  if (me.role === 'Admin') h += st(s.doctors, 'Doctors');
+  h += st(s.visits, 'Medical visits') + '</div>';
+  $('#content').innerHTML = h;
+}
+
+/* ---------- patients ---------- */
+const patientFields = (p = {}) => `
+  <label>Full name</label><input name="name" value="${esc(p.name)}" required>
+  <div class="two"><div><label>Date of birth</label><input type="date" name="dob" value="${esc(p.dob)}" required></div>
+  <div><label>Gender</label><select name="gender">${['Male','Female','Other'].map(g => `<option ${p.gender === g ? 'selected' : ''}>${g}</option>`).join('')}</select></div></div>
+  <div class="two"><div><label>Phone</label><input name="phone" value="${esc(p.phone)}" required></div>
+  <div><label>Blood group</label><select name="blood">${['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(g => `<option ${p.blood === g ? 'selected' : ''}>${g}</option>`).join('')}</select></div></div>
+  <label>Address</label><input name="address" value="${esc(p.address)}" required>
+  <label>Emergency contact</label><input name="emergency" value="${esc(p.emergency)}" required>`;
+let patientCache = [];
+async function pPatients() {
+  if (can('Admin', 'Receptionist')) $('#ptools').innerHTML = `<input id="q" placeholder="Search ID / name / phone…" oninput="loadPatients()"><button class="btn" onclick="addPatient()">+ Register Patient</button>`;
+  else $('#ptools').innerHTML = `<input id="q" placeholder="Search ID / name / phone…" oninput="loadPatients()">`;
+  await loadPatients();
+}
+async function loadPatients() {
+  const list = await api('patients?q=' + encodeURIComponent($('#q')?.value || '')); patientCache = list;
+  $('#content').innerHTML = list.length ? `<table><tr><th>ID</th><th>Name</th><th>Age</th><th>Gender</th><th>Phone</th><th>Blood</th><th>Actions</th></tr>${
+    list.map(p => `<tr><td>${p.id}</td><td>${esc(p.name)}</td><td>${p.age}</td><td>${esc(p.gender)}</td><td>${esc(p.phone)}</td><td>${esc(p.blood)}</td>
+    <td><div class="act"><button class="btn sm ghost" onclick="viewPatient('${p.id}')">View</button><button class="btn sm ghost" onclick="go('history','${p.id}')">History</button>
+    ${can('Admin', 'Receptionist') ? `<button class="btn sm" onclick="editPatient('${p.id}')">Edit</button>` : ''}
+    ${can('Admin') ? `<button class="btn sm red" onclick="delPatient('${p.id}')">Delete</button>` : ''}</div></td></tr>`).join('')}</table>`
+    : '<div class="card empty">No patients found.</div>';
+}
+function viewPatient(id) {
+  const p = patientCache.find(x => x.id === id);
+  modal('Patient ' + p.id, `<div class="pinfo" style="margin-top:12px">${[['Name', p.name], ['Date of birth', p.dob + ' (age ' + p.age + ')'], ['Gender', p.gender], ['Phone', p.phone], ['Blood group', p.blood], ['Address', p.address], ['Emergency contact', p.emergency]].map(([k, v]) => `<div><small>${k}</small>${esc(v)}</div>`).join('')}</div>`);
+}
+function addPatient() { modal('Register Patient', patientFields(), async d => { const r = await api('patients', d); toast('Registered as ' + r.id); loadPatients(); }, 'Register'); }
+function editPatient(id) { modal('Edit Patient ' + id, patientFields(patientCache.find(x => x.id === id)), async d => { await api(`patients/${id}/update`, d); toast('Patient updated'); loadPatients(); }); }
+function delPatient(id) {
+  modal('Delete patient?', `<p>This permanently deletes <b>${id}</b> and all their appointments, visits and bills.</p>`, async () => { await api(`patients/${id}/delete`, {}); toast('Patient deleted'); loadPatients(); }, 'Delete');
+}
+
+/* ---------- appointments ---------- */
+let apptFilter = 'All';
+async function pAppointments() {
+  if (can('Admin', 'Receptionist')) $('#ptools').innerHTML = `<select id="af" onchange="apptFilter=this.value;pAppointments()" style="width:150px">${['All','Scheduled','Completed','Cancelled'].map(s => `<option ${s === apptFilter ? 'selected' : ''}>${s}</option>`).join('')}</select><button class="btn" onclick="newAppt()">+ New Appointment</button>`;
+  else $('#ptools').innerHTML = `<select onchange="apptFilter=this.value;pAppointments()" style="width:150px">${['All','Scheduled','Completed','Cancelled'].map(s => `<option ${s === apptFilter ? 'selected' : ''}>${s}</option>`).join('')}</select>`;
+  let list = await api('appointments'); if (apptFilter !== 'All') list = list.filter(a => a.status === apptFilter);
+  list.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  $('#content').innerHTML = list.length ? `<table><tr><th>ID</th><th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th><th>Reason</th><th>Status</th>${can('Admin', 'Receptionist') ? '<th></th>' : ''}</tr>${
+    list.map(a => `<tr><td>${a.id}</td><td>${a.patientId} · ${esc(a.patientName)}</td><td>${esc(a.doctorName)}</td><td>${a.date}</td><td>${a.time}</td><td>${esc(a.reason)}</td><td><span class="tag ${a.status}">${a.status}</span></td>
+    ${can('Admin', 'Receptionist') ? `<td>${a.status === 'Scheduled' ? `<button class="btn sm red" onclick="cancelAppt('${a.id}')">Cancel</button>` : ''}</td>` : ''}</tr>`).join('')}</table>` : '<div class="card empty">No appointments.</div>';
+}
+async function newAppt() {
+  const [pats, docs] = await Promise.all([api('patients'), api('doctors')]);
+  if (!pats.length) return toast('Register a patient first', true);
+  modal('New Appointment', `
+    <label>Patient</label><select name="patientId">${pats.map(p => `<option value="${p.id}">${p.id} · ${esc(p.name)}</option>`).join('')}</select>
+    <label>Doctor</label><select name="doctorId">${docs.map(d => `<option value="${d.id}">${esc(d.name)} — ${esc(d.specialization)} (${rs(d.fee)})</option>`).join('')}</select>
+    <div class="two"><div><label>Date</label><input type="date" name="date" value="${new Date().toISOString().slice(0, 10)}" required></div><div><label>Time</label><input type="time" name="time" value="10:00" required></div></div>
+    <label>Reason</label><input name="reason" required>`, async d => { const r = await api('appointments', d); toast('Appointment ' + r.id + ' created'); pAppointments(); }, 'Create');
+}
+function cancelAppt(id) { modal('Cancel appointment?', `<p>Cancel appointment <b>${id}</b>?</p>`, async () => { await api(`appointments/${id}/cancel`, {}); toast('Cancelled'); pAppointments(); }, 'Yes, cancel'); }
+
+/* ---------- history (timeline) ---------- */
+async function pHistory() {
+  const pats = await api('patients');
+  $('#ptools').innerHTML = `<select id="hp" style="width:280px" onchange="histPid=this.value;loadHistory()"><option value="">— select patient —</option>${pats.map(p => `<option value="${p.id}" ${p.id === histPid ? 'selected' : ''}>${p.id} · ${esc(p.name)}</option>`).join('')}</select>`;
+  await loadHistory();
+}
+async function loadHistory() {
+  if (!histPid) { $('#content').innerHTML = '<div class="card empty">Select a patient to see their medical history.</div>'; return; }
+  const h = await api(`patients/${histPid}/history`), p = h.patient;
+  let out = `<div class="card"><div class="pinfo"><div><small>Patient</small><b>${p.id} · ${esc(p.name)}</b></div><div><small>Age / Gender</small>${p.age} / ${esc(p.gender)}</div><div><small>Blood group</small>${esc(p.blood)}</div><div><small>Phone</small>${esc(p.phone)}</div></div></div>`;
+  if (!h.visits.length) out += '<div class="card empty">No visits recorded yet.</div>';
+  else out += '<div class="tl">' + h.visits.map(v => `<div class="visit"><h4><span>Visit ${v.id} · ${v.date}</span><span style="color:var(--muted);font-weight:400">${esc(v.doctorName)}</span></h4>
+    <div><small style="color:var(--muted)">DIAGNOSIS</small><br>${esc(v.diagnosis)}</div><div style="margin-top:8px"><small style="color:var(--muted)">NOTES</small><br>${esc(v.notes)}</div>
+    <div style="margin-top:8px"><small style="color:var(--muted)">SERVICES</small><br>${v.services.length ? v.services.map(s => `<span class="chip">${esc(s.name)} · ${rs(s.price)}</span>`).join('') : '<span style="color:var(--muted)">None</span>'}</div>
+    ${me.role === 'Doctor' && v.doctorId === me.id ? `<div class="act" style="margin-top:12px"><button class="btn sm" onclick="suggest('${v.id}','Test')">+ Suggest Test</button><button class="btn sm warn" onclick="suggest('${v.id}','Procedure')">+ Suggest Procedure</button></div>` : ''}</div>`).join('') + '</div>';
+  $('#content').innerHTML = out;
+}
+async function suggest(visitId, type) {
+  const list = (await api('services')).filter(s => s.type === type);
+  modal('Suggest ' + type, `<label>${type}</label><select name="serviceId">${list.map(s => `<option value="${s.id}">${esc(s.name)} — ${rs(s.price)}</option>`).join('')}</select>
+    <p style="color:var(--muted);font-size:13px">The price is added to the patient's bill automatically.</p>`,
+    async d => { const b = await api(`visits/${visitId}/services`, d); toast('Added to bill ' + b.id + ' · total ' + rs(b.total)); loadHistory(); }, 'Add to bill');
+}
+
+/* ---------- add medical visit (doctor) ---------- */
+async function pVisit() {
+  const [pats, svcs, appts] = await Promise.all([api('patients'), api('services'), api('appointments')]);
+  const mine = appts.filter(a => a.status === 'Scheduled');
+  const chk = t => svcs.filter(s => s.type === t).map(s => `<label><input type="checkbox" class="sv" value="${s.id}" data-p="${s.price}"> ${esc(s.name)} <span style="margin-left:auto;color:var(--muted)">${rs(s.price)}</span></label>`).join('');
+  $('#content').innerHTML = `<form class="card" id="vf" style="max-width:760px">
+    <div class="two"><div><label>Patient</label><select name="patientId" id="vp" required><option value="">— select —</option>${pats.map(p => `<option value="${p.id}">${p.id} · ${esc(p.name)}</option>`).join('')}</select></div>
+    <div><label>Linked appointment (optional)</label><select name="appointmentId" id="va"><option value="">None</option></select></div></div>
+    <label>Diagnosis</label><input name="diagnosis" required>
+    <label>Medical notes</label><textarea name="notes" required></textarea>
+    <label>Tests</label><div class="checks">${chk('Test')}</div>
+    <label>Procedures</label><div class="checks">${chk('Procedure')}</div>
+    <div class="card" style="background:#f3f8f7;margin:18px 0 0;padding:12px 16px">Consultation ${rs(me.fee)} + services <b id="vs">Rs. 0</b> = estimated total <b id="vt"></b></div>
+    <div class="err" id="ve"></div><button class="btn full">Save visit &amp; generate bill</button></form>`;
+  const upd = () => { let s = 0; document.querySelectorAll('.sv:checked').forEach(c => s += +c.dataset.p); $('#vs').textContent = rs(s); $('#vt').textContent = rs(s + me.fee); };
+  upd(); document.querySelectorAll('.sv').forEach(c => c.onchange = upd);
+  $('#vp').onchange = () => { $('#va').innerHTML = '<option value="">None</option>' + mine.filter(a => a.patientId === $('#vp').value).map(a => `<option value="${a.id}">${a.id} · ${a.date} ${a.time} · ${esc(a.reason)}</option>`).join(''); };
+  $('#vf').onsubmit = async e => {
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(e.target)); d.services = [...document.querySelectorAll('.sv:checked')].map(c => c.value).join(',');
+    try {
+      const r = await api('visits', d);
+      modal('Visit ' + r.visitId + ' saved', billHtml(r.bill), null); toast('Visit saved'); pVisit();
+    } catch (er) { $('#ve').textContent = er.message; }
+  };
+}
+
+/* ---------- bills ---------- */
+const billHtml = b => `<div class="bill" style="margin-top:12px"><div style="text-align:center;font-weight:700">BILL ${b.id}</div><div style="text-align:center;color:var(--muted)">${b.patientId} · ${esc(b.patientName)} · ${b.date}</div><hr>
+  <div class="r"><span>Consultation</span><span>${rs(b.consultation)}</span></div>
+  ${b.items.map(i => `<div class="r"><span>${esc(i.name)}</span><span>${rs(i.price)}</span></div>`).join('')}
+  ${b.other ? `<div class="r"><span>Other charges</span><span>${rs(b.other)}</span></div>` : ''}<hr>
+  <div class="r tot"><span>TOTAL</span><span>${rs(b.total)}</span></div><div class="r"><span>Payment status</span><span class="tag ${b.paid ? 'Paid' : 'Unpaid'}">${b.paid ? 'Paid' : 'Unpaid'}</span></div></div>`;
+let billCache = [];
+async function pBills() {
+  billCache = await api('bills');
+  $('#content').innerHTML = billCache.length ? `<table><tr><th>Bill</th><th>Patient</th><th>Date</th><th>Total</th><th>Status</th><th></th></tr>${
+    billCache.map(b => `<tr><td>${b.id}</td><td>${b.patientId} · ${esc(b.patientName)}</td><td>${b.date}</td><td>${rs(b.total)}</td><td><span class="tag ${b.paid ? 'Paid' : 'Unpaid'}">${b.paid ? 'Paid' : 'Unpaid'}</span></td>
+    <td><button class="btn sm" onclick="openBill('${b.id}')">Open</button></td></tr>`).join('')}</table>` : '<div class="card empty">No bills yet. Bills are created when a doctor adds a medical visit.</div>';
+}
+function openBill(id) {
+  const b = billCache.find(x => x.id === id);
+  const ov = modal('Bill ' + id, billHtml(b), null);
+  ov.querySelector('.row').insertAdjacentHTML('afterbegin', `<button type="button" class="btn ghost" data-pr>Print</button>${b.paid ? '' : '<button type="button" class="btn warn" data-ot>Add charge</button>'}<button type="button" class="btn" data-pd>${b.paid ? 'Mark unpaid' : 'Mark paid'}</button>`);
+  ov.querySelector('[data-pr]').onclick = () => window.print();
+  ov.querySelector('[data-pd]').onclick = async () => { await api(`bills/${id}/paid`, {paid: b.paid ? '0' : '1'}); ov.remove(); toast('Payment status updated'); pBills(); };
+  const ot = ov.querySelector('[data-ot]');
+  if (ot) ot.onclick = () => { ov.remove(); modal('Add other charges', '<label>Amount (Rs.)</label><input type="number" name="amount" min="1" required>', async d => { await api(`bills/${id}/other`, d); toast('Charge added'); pBills(); }, 'Add'); };
+}
+
+/* ---------- reports (admin) ---------- */
+async function pReports() {
+  const r = await api('reports'), st = (n, l) => `<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  $('#ptools').innerHTML = '<button class="btn ghost" onclick="window.print()">🖨 Print</button>';
+  $('#content').innerHTML = `<div class="cards">${st(r.appointments.scheduled, 'Scheduled')}${st(r.appointments.completed, 'Completed')}${st(r.appointments.cancelled, 'Cancelled')}${st(rs(r.billing.paid), 'Collected (paid)')}${st(rs(r.billing.unpaid), 'Outstanding (unpaid)')}${st(rs(r.billing.total), 'Total billed (' + r.billing.count + ' bills)')}</div>
+   <h3>Doctor report</h3><table><tr><th>ID</th><th>Doctor</th><th>Specialization</th><th>Appointments</th><th>Visits</th></tr>${r.doctors.map(d => `<tr><td>${d.id}</td><td>${esc(d.name)}</td><td>${esc(d.specialization)}</td><td>${d.appointments}</td><td>${d.visits}</td></tr>`).join('')}</table>
+   <h3>Patient report</h3>${r.patients.length ? `<table><tr><th>ID</th><th>Patient</th><th>Visits</th></tr>${r.patients.map(p => `<tr><td>${p.id}</td><td>${esc(p.name)}</td><td>${p.visits}</td></tr>`).join('')}</table>` : '<div class="card empty">No patients.</div>'}`;
+}
+
+/* ---------- staff (admin) ---------- */
+async function pStaff(role) {
+  $('#ptools').innerHTML = `<button class="btn" onclick="addStaff('${role}')">+ Add ${role}</button>`;
+  const list = await api('staff/' + role), doc = role === 'Doctor';
+  $('#content').innerHTML = list.length ? `<table><tr><th>ID</th><th>Name</th><th>Username</th>${doc ? '<th>Specialization</th><th>Fee</th>' : ''}<th></th></tr>${
+    list.map(u => `<tr><td>${u.id}</td><td>${esc(u.name)}</td><td>${esc(u.username)}</td>${doc ? `<td>${esc(u.specialization)}</td><td>${rs(u.fee)}</td>` : ''}
+    <td><div class="act"><button class="btn sm ghost" onclick="resetPw('${u.id}','${role}')">Reset password</button><button class="btn sm red" onclick="delStaff('${u.id}','${role}')">Delete</button></div></td></tr>`).join('')}</table>` : `<div class="card empty">No ${role.toLowerCase()}s yet.</div>`;
+}
+function addStaff(role) {
+  modal('Add ' + role, `<input type="hidden" name="role" value="${role}"><label>Full name</label><input name="name" required>
+    <div class="two"><div><label>Username</label><input name="username" required></div><div><label>Password</label><input name="password" required></div></div>
+    ${role === 'Doctor' ? '<div class="two"><div><label>Specialization</label><input name="specialization" required></div><div><label>Consultation fee (Rs.)</label><input type="number" name="fee" min="1" required></div></div>' : ''}`,
+    async d => { await api('staff', d); toast(role + ' added'); pStaff(role); }, 'Add');
+}
+function resetPw(id, role) { modal('Reset password for ' + id, '<label>New password</label><input name="password" required>', async d => { await api(`staff/${id}/password`, d); toast('Password updated'); }); }
+function delStaff(id, role) { modal('Delete ' + role + '?', `<p>Delete <b>${id}</b>? This is blocked if they have appointment or visit records.</p>`, async () => { await api(`staff/${id}/delete`, {}); toast('Deleted'); pStaff(role); }, 'Delete'); }
+
+/* ---------- boot ---------- */
+(async () => { if (token) { try { me = await api('me'); start(); } catch (e) {} } })();
+</script>
+</body>
+</html>
