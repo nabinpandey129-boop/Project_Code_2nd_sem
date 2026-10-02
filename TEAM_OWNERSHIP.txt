@@ -1,0 +1,29 @@
+TEAM WORK SPLIT  (equal by code size, ~670 lines each)
+=====================================================
+
+SARTHAK  (~684 lines) - data layer + admin pages
+  models/Util.h, User.h, Patient.h, Appointment.h, MedicalVisit.h,
+         Test.h, Procedure.h, Bill.h
+  services/HospitalSystem.h        (load/save, IDs, business rules)
+  web/index.html                   (page structure only)
+  web/js/dashboard.js, reports.js, staff.js
+  build.bat, web/make_page.py
+
+NABIN  (~680 lines) - server + connection
+  main.cpp                         (web server, tokens, role checks, all API routes)
+  web/js/core.js                   (helpers, api(), login, menu, start-up)
+  web/js/appointments.js, bills.js
+
+SUSHANT  (~682 lines) - look and main screens
+  web/style.css                    (all styling)
+  web/js/patients.js, history.js, visit.js
+
+SHARED RULES (so you never edit each other's files)
+  - Page files may use the helpers in core.js: $, esc, money, setContent, emptyBox,
+    tag, stat, smallButton, options, table, toast, showModal, api, can, go.
+    Need a new helper? Ask Nabin (owner of core.js).
+  - visit.js (Sushant) uses billHtml() from bills.js (Nabin).
+  - Pages call the server only through api('...'); see the API list in the documentation.
+  - Sarthak and Nabin agree HospitalSystem method names before the routes are written.
+
+AFTER EDITING ANY FILE IN web/  ->  run  python web\make_page.py  (or just build.bat), then .\hms.exe

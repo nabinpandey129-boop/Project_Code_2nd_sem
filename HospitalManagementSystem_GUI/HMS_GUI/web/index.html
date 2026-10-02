@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hospital Management System</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="login">
+  <form class="lcard" id="lf">
+    <div class="logo">🏥</div>
+    <h1>Hospital Management System</h1>
+    <p>Sign in to continue</p>
+    <label>Username</label><input id="lu" autocomplete="username" autofocus>
+    <label>Password</label><input id="lp" type="password" autocomplete="current-password">
+    <div class="err" id="le"></div>
+    <button class="btn full">Login</button>
+    <div class="hint"><b>Demo accounts</b><br>Admin: admin01 / admin123<br>Reception: recep01 / recep123<br>Doctor: dr.sharma / doc123</div>
+  </form>
+</div>
+
+<div id="app" class="hide">
+  <aside>
+    <div class="brand"><span>🏥</span>HMS</div>
+    <div class="user"><b id="uname"></b><small id="urole"></small></div>
+    <nav id="nav"></nav>
+    <button class="lo" onclick="logout()">⎋ Logout</button>
+  </aside>
+  <main>
+    <div class="top"><h2 id="ptitle"></h2><div class="tools" id="ptools"></div></div>
+    <div id="content"></div>
+  </main>
+</div>
+<div id="toast" class="hide"></div>
+<script src="js/core.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/patients.js"></script>
+<script src="js/appointments.js"></script>
+<script src="js/history.js"></script>
+<script src="js/visit.js"></script>
+<script src="js/bills.js"></script>
+<script src="js/reports.js"></script>
+<script src="js/staff.js"></script>
+</body>
+</html>

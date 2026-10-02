@@ -1,10 +1,14 @@
-<!DOCTYPE html>
+#pragma once
+static const char* kPage = R"HMSPAGE(<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hospital Management System</title>
 <style>
+/* style.css - all styling
+   Owner: Sushant */
+
 /* ===== Theme ===== */
 :root {
   --bg: #f3f6fa;
@@ -469,16 +473,10 @@ td {
   </main>
 </div>
 <div id="toast" class="hide"></div>
-
 <script>
-/* =====================================================
-   HOSPITAL MANAGEMENT SYSTEM - front-end
-   1. Helpers      2. State & API    3. Login / shell
-   4. Dashboard    5. Patients       6. Appointments
-   7. History      8. Medical visit  9. Bills
-   10. Reports     11. Staff         12. Start
-   ===================================================== */
-
+/* core.js - shared helpers, API call, login, menu, start-up
+   Owner: Nabin
+   Used by every page file. Load this file first. */
 
 /* ========== 1. HELPERS ========== */
 
@@ -577,9 +575,6 @@ function showModal(title, body, onSubmit, saveText = 'Save') {
 let token = localStorage.getItem('hms_token');
 let me = null;                  // logged-in user {id, name, role, pages, fee}
 let historyPatientId = '';      // patient shown on the History page
-let appointmentFilter = 'All';
-let patients = [];              // cached list (Patients page)
-let bills = [];                 // cached list (Bills page)
 
 const can = (...roles) => roles.includes(me.role);
 
@@ -610,15 +605,15 @@ const ICONS = {
   appointments: '📅', history: '🩺', visit: '➕', bills: '💰', reports: '📊'
 };
 
-// page id -> function that draws it
+// page id -> function that draws it (each page lives in its own file)
 const PAGES = {
-  dashboard: showDashboard,
-  patients: showPatients,
-  appointments: showAppointments,
-  history: showHistory,
-  visit: showVisitForm,
-  bills: showBills,
-  reports: showReports,
+  dashboard: () => showDashboard(),
+  patients: () => showPatients(),
+  appointments: () => showAppointments(),
+  history: () => showHistory(),
+  visit: () => showVisitForm(),
+  bills: () => showBills(),
+  reports: () => showReports(),
   doctors: () => showStaff('Doctor'),
   receptionists: () => showStaff('Receptionist')
 };
@@ -678,6 +673,22 @@ function go(pageId, arg) {
 }
 
 
+/* ========== 12. START ========== */
+
+// If a login token is saved, go straight to the app
+(async () => {
+  if (!token) return;
+  try {
+    me = await api('me');
+    showApp();
+  } catch (error) { /* token expired: stay on login */ }
+})();
+</script>
+<script>
+/* dashboard.js
+   Owner: Sarthak
+   Dashboard page. */
+
 /* ========== 4. DASHBOARD ========== */
 
 async function showDashboard() {
@@ -698,7 +709,13 @@ async function showDashboard() {
     </div>
     <div class="cards">${cards}</div>`);
 }
+</script>
+<script>
+/* patients.js
+   Owner: Sushant
+   Patients page: list, search, register, edit, delete. */
 
+let patients = [];   // cached list for this page
 
 /* ========== 5. PATIENTS ========== */
 
@@ -786,7 +803,13 @@ function deletePatient(id) {
     loadPatients();
   }, 'Delete');
 }
+</script>
+<script>
+/* appointments.js
+   Owner: Nabin
+   Appointments page: list, book, cancel. */
 
+let appointmentFilter = 'All';
 
 /* ========== 6. APPOINTMENTS ========== */
 
@@ -843,7 +866,11 @@ function cancelAppointment(id) {
     showAppointments();
   }, 'Yes, cancel');
 }
-
+</script>
+<script>
+/* history.js
+   Owner: Sushant
+   Patient history timeline and Suggest Test / Procedure. */
 
 /* ========== 7. PATIENT HISTORY (timeline) ========== */
 
@@ -919,7 +946,11 @@ async function suggest(visitId, type) {
       loadHistory();
     }, 'Add to bill');
 }
-
+</script>
+<script>
+/* visit.js
+   Owner: Sushant
+   Add Medical Visit form (doctor). Uses billHtml() from bills.js. */
 
 /* ========== 8. ADD MEDICAL VISIT (doctor) ========== */
 
@@ -992,7 +1023,13 @@ async function showVisitForm() {
     }
   };
 }
+</script>
+<script>
+/* bills.js
+   Owner: Nabin
+   Bills page and the bill pop-up (billHtml is also used by visit.js). */
 
+let bills = [];   // cached list for this page
 
 /* ========== 9. BILLS ========== */
 
@@ -1062,7 +1099,11 @@ function openBill(id) {
       }, 'Add');
   };
 }
-
+</script>
+<script>
+/* reports.js
+   Owner: Sarthak
+   Reports page (Admin). */
 
 /* ========== 10. REPORTS (admin) ========== */
 
@@ -1087,7 +1128,11 @@ async function showReports() {
     <h3>Patient report</h3>
     ${patientRows.length ? table(['ID', 'Patient', 'Visits'], patientRows) : emptyBox('No patients.')}`);
 }
-
+</script>
+<script>
+/* staff.js
+   Owner: Sarthak
+   Doctors and Receptionists pages (Admin). */
 
 /* ========== 11. STAFF (admin: doctors & receptionists) ========== */
 
@@ -1148,18 +1193,7 @@ function deleteStaff(id, role) {
     showStaff(role);
   }, 'Delete');
 }
-
-
-/* ========== 12. START ========== */
-
-// If a login token is saved, go straight to the app
-(async () => {
-  if (!token) return;
-  try {
-    me = await api('me');
-    showApp();
-  } catch (error) { /* token expired: stay on login */ }
-})();
 </script>
 </body>
 </html>
+)HMSPAGE";
